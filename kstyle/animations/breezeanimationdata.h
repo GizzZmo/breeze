@@ -6,7 +6,13 @@
 #ifndef breeze_animationdata_h
 #define breeze_animationdata_h
 
+#include "config-breeze.h"
+
 #include "breezeanimation.h"
+
+#if BREEZE_HAVE_QTQUICK
+#include <QQuickItem>
+#endif
 
 #include <QEvent>
 #include <QObject>
@@ -23,7 +29,7 @@ class AnimationData : public QObject
 
 public:
     //* constructor
-    AnimationData(QObject *parent, QWidget *target)
+    AnimationData(QObject *parent, QObject *target)
         : QObject(parent)
         , _target(target)
     {
@@ -51,7 +57,7 @@ public:
     }
 
     //* target
-    const WeakPointer<QWidget> &target() const
+    const WeakPointer<QObject> &target() const
     {
         return _target;
     }
@@ -76,14 +82,19 @@ protected:
     //* trigger target update
     virtual void setDirty() const
     {
-        if (_target) {
-            _target.data()->update();
+        if (auto target = qobject_cast<QWidget *>(_target)) {
+            target->update();
         }
+#if BREEZE_HAVE_QTQUICK
+        else if (auto target = qobject_cast<QQuickItem *>(_target)) {
+            target->polish();
+        }
+#endif
     }
 
 private:
     //* guarded target
-    WeakPointer<QWidget> _target;
+    WeakPointer<QObject> _target;
 
     //* enability
     bool _enabled = true;
