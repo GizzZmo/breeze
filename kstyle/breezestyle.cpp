@@ -7765,16 +7765,17 @@ QIcon Style::titleBarButtonIcon(StandardPixmap standardPixmap, const QStyleOptio
 bool Style::isQtQuickControl(const QStyleOption *option, const QWidget *widget) const
 {
 #if BREEZE_HAVE_QTQUICK
-    const bool is = (widget == nullptr) && option && option->styleObject && option->styleObject->inherits("QQuickItem");
-    if (is) {
-        _windowManager->registerQuickItem(static_cast<QQuickItem *>(option->styleObject));
+    if (widget == nullptr && option != nullptr) {
+        if (const auto item = qobject_cast<QQuickItem *>(option->styleObject)) {
+            _windowManager->registerQuickItem(item);
+            return true;
+        }
     }
-    return is;
 #else
     Q_UNUSED(widget);
     Q_UNUSED(option);
-    return false;
 #endif
+    return false;
 }
 
 //____________________________________________________________________
