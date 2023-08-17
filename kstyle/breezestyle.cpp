@@ -1239,6 +1239,9 @@ void Style::drawControl(ControlElement element, const QStyleOption *option, QPai
         case CE_DockWidgetTitle:
             fcn = &Style::drawDockWidgetTitleControl;
             break;
+        case QStyle::CE_Splitter:
+            fcn = &Style::drawSplitterControl;
+            break;
 
         // fallback
         default:
@@ -6679,6 +6682,23 @@ bool Style::drawDockWidgetTitleControl(const QStyleOption *option, QPainter *pai
     return true;
 }
 
+//______________________________________________________________
+bool Style::drawSplitterControl(const QStyleOption *option, QPainter *painter, const QWidget *widget) const
+{
+    if (!widget->property(PropertyNames::showHandle).toBool()) {
+        return false;
+    }
+    auto rect(option->rect);
+    const auto color(_helper->separatorColor(option->palette));
+    const bool isVertical(option->state & QStyle::State_Horizontal);
+    if (isVertical) {
+        rect.setWidth(1);
+    } else {
+        rect.setHeight(1);
+    }
+    _helper->renderSeparator(painter, rect, color, isVertical);
+    return true;
+}
 //______________________________________________________________
 bool Style::drawGroupBoxComplexControl(const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget) const
 {
